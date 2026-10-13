@@ -1,0 +1,16 @@
+{
+  "name": "Guitar Setup & Tuning Studio",
+  "short_name": "GuitarStudio",
+  "start_url": "/guitar-setup-app/",
+  "scope": "/guitar-setup-app/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#38bdf8",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

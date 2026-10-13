@@ -1,0 +1,11 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Guitar Setup Studio",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "GuitarStudio",
+  "start_url": "/",
+  "theme_color": "#ffffff"
+}

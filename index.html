@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guitar Setup & Tuning Studio</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --border: #334155;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-color: #0f172a;
+            --text-muted: #64748b;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --border: #cbd5e1;
+            --success: #16a34a;
+            --danger: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .controls-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button, select {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        button:hover, select:hover {
+            border-color: var(--accent);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .tab-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent);
+        }
+
+        .panel {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        /* Guitar Selector & Specs */
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-color);
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+
+        .guitar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 5px;
+        }
+
+        .guitar-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            padding: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .guitar-card:hover {
+            border-color: var(--accent);
+        }
+
+        .guitar-card.selected {
+            border-color: var(--accent);
+            background-color: rgba(56, 189, 248, 0.05);
+        }
+
+        .fav-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .fav-btn.active {
+            color: var(--danger);
+        }
+
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .specs-table th, .specs-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .specs-table th {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Step by Step Guide */
+        .step-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .step-item {
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .step-title {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        /* Tuner Panel */
+        .tuner-display {
+            text-align: center;
+            padding: 30px;
+            background: var(--bg-color);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .note-name {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .cents-meter {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            color: var(--text-muted);
+        }
+
+        .freq-display {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .tuner-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <header>
+        <h1 id="app-title">Guitar Setup & Tuning Studio</h1>
+        <div class="controls-group">
+            <select id="lang-select" onchange="changeLanguage(this.value)">
+                <option value="nl">NL</option>
+                <option value="en">EN</option>
+            </select>
+            <button id="theme-btn" onclick="toggleTheme()">☀️ / 🌙</button>
+        </div>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(0)" data-i18n="tab_guitars">Gitaren & Specs</button>
+        <button class="tab-btn" onclick="switchTab(1)" data-i18n="tab_favs">Favorieten</button>
+        <button class="tab-btn" onclick="switchTab(2)" data-i18n="tab_guide">Afstelgids</button>
+        <button class="tab-btn" onclick="switchTab(3)" data-i18n="tab_tuner">Pro Tuner</button>
+    </div>
+
+    <!-- TAB 0: Gitaren & Specs -->
+    <div class="panel active">
+        <input type="text" id="search-input" class="search-box" placeholder="Zoek op merk of model (bijv. Stratocaster, Les Paul)..." oninput="filterGuitars()">
+        <div id="guitar-list" class="guitar-grid"></div>
+        
+        <div id="selected-specs-container" style="margin-top: 20px;">
+            <h3 id="specs-heading">Geselecteerde specificaties</h3>
+            <table class="specs-table">
+                <tbody id="specs-body">
+                    <tr><td colspan="2" style="text-align: center; color: var(--text-muted);" data-i18n="select_prompt">Kies hierboven een gitaar om de fabrieksspecificaties te laden.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 1: Favorieten -->
+    <div class="panel">
+        <h3 data-i18n="fav_heading">Jouw favoriete gitaren</h3>
+        <div id="fav-list" class="guitar-grid" style="margin-top: 15px;">
+            <!-- Wordt dynamisch gevuld -->
+        </div>
+    </div>
+
+    <!-- TAB 2: Afstelgids -->
+    <div class="panel">
+        <h3 id="guide-title" style="margin-bottom: 15px;">Stap-voor-stap Afstelgids</h3>
+        <div class="step-container" id="step-container">
+            <!-- Wordt dynamisch gevuld -->
+        </div>
+    </div>
+
+    <!-- TAB 3: Pro Tuner -->
+    <div class="panel">
+        <div class="tuner-controls">
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-muted);" data-i18n="tuning_label">Stemming:</label>
+                <select id="tuning-select" style="width:100%; margin-top:5px;" onchange="changeTuning()">
+                    <option value="standard">Standard (E A D G B E)</option>
+                    <option value="drop_d">Drop D (D A D G B E)</option>
+                    <option value="dadgad">DADGAD</option>
+                    <option value="half_step">Half Step Down (Eb...)</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-muted);" data-i18n="hz_label">Referentie (Hz):</label>
+                <input type="number" id="hz-input" value="440" min="400" max="480" style="width:100%; margin-top:5px; padding:8px; background:var(--bg-color); border:1px solid var(--border); color:var(--text-color); border-radius:8px;" onchange="updateReferenceFreq(this.value)">
+            </div>
+        </div>
+
+        <div class="tuner-display">
+            <div id="tuner-note" class="note-name">-</div>
+            <div id="tuner-cents" class="cents-meter" data-i18n="tuner_ready">Klik op start om de tuner te activeren</div>
+            <div id="tuner-freq" class="freq-display">0.0 Hz</div>
+        </div>
+
+        <button id="tuner-toggle-btn" onclick="toggleTuner()" style="width: 100%; background: var(--accent); color: white; padding: 12px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;" data-i18n="start_tuner">Start Microfoon Tuner</button>
+    </div>
+
+    <script>
+        const guitars = [
+            { id: 1, brand: "Fender", model: "Stratocaster (American Standard)", type: "Solidbody", scale: "25.5\"", radius: "9.5\"", relief: "0.25 mm", action12th: "1.6 mm (Treble) - 2.0 mm (Bass)", pickupHeight: "1.6 mm - 2.4 mm" },
+            { id: 2, brand: "Fender", model: "Telecaster", type: "Solidbody", scale: "25.5\"", radius: "9.5\"", relief: "0.25 mm", action12th: "1.6 mm (Treble) - 2.0 mm (Bass)", pickupHeight: "1.8 mm - 2.2 mm" },
+            { id: 3, brand: "Gibson", model: "Les Paul Standard", type: "Solidbody", scale: "24.75\"", radius: "12.0\"", relief: "0.30 mm", action12th: "1.5 mm (Treble) - 2.0 mm (Bass)", pickupHeight: "1.5 mm - 2.0 mm" },
+            { id: 4, brand: "Gibson", model: "SG Standard", type: "Solidbody", scale: "24.75\"", radius: "12.0\"", relief: "0.30 mm", action12th: "1.5 mm (Treble) - 2.0 mm (Bass)", pickupHeight: "1.5 mm - 2.0 mm" },
+            { id: 5, brand: "Ibanez", model: "RG550 (Superstrat)", type: "Solidbody", scale: "25.5\"", radius: "15.75\"", relief: "0.15 mm", action12th: "1.2 mm (Treble) - 1.5 mm (Bass)", pickupHeight: "1.5 mm - 2.0 mm" },
+            { id: 6, brand: "Martin", model: "D-28 (Dreadnought)", type: "Acoustic", scale: "25.4\"", radius: "16.0\"", relief: "0.20 mm", action12th: "2.0 mm (Treble) - 2.8 mm (Bass)", pickupHeight: "N.A. (Akoestisch)" },
+            { id: 7, brand: "PRS", model: "Custom 24", type: "Solidbody", scale: "25.0\"", radius: "10.0\"", relief: "0.25 mm", action12th: "1.5 mm (Treble) - 1.8 mm (Bass)", pickupHeight: "1.6 mm - 2.1 mm" }
+        ];
+
+        let currentLang = 'nl';
+        let currentTheme = 'dark';
+        let favorites = JSON.parse(localStorage.getItem('guitar_favs')) || [];
+        let selectedGuitar = null;
+
+        const translations = {
+            nl: {
+                tab_guitars: "Gitaren & Specs",
+                tab_favs: "Favorieten",
+                tab_guide: "Afstelgids",
+                tab_tuner: "Pro Tuner",
+                search_placeholder: "Zoek op merk of model (bijv. Stratocaster, Les Paul)...",
+                specs_heading: "Geselecteerde specificaties",
+                select_prompt: "Kies hierboven een gitaar om de fabrieksspecificaties te laden.",
+                fav_heading: "Jouw favoriete gitaren",
+                fav_empty: "Nog geen favorieten toegevoegd. Klik op het hartje bij een gitaar.",
+                tuning_label: "Stemming:",
+                hz_label: "Referentie (Hz):",
+                tuner_ready: "Klik op start om de tuner te activeren",
+                start_tuner: "Start Microfoon Tuner",
+                stop_tuner: "Stop Tuner",
+                col_prop: "Eigenschap",
+                col_spec: "Fabrieksspec / Ideale waarde",
+                scale: "Mensuur (Scale Length)",
+                radius: "Toets Radius (Fretboard Radius)",
+                relief: "Neck Relief (Hals-welving)",
+                action: "Action (Snaarhoogte 12e Fret)",
+                pickup: "Pickup Hoogte (Elementafstand)"
+            },
+            en: {
+                tab_guitars: "Guitars & Specs",
+                tab_favs: "Favorites",
+                tab_guide: "Setup Guide",
+                tab_tuner: "Pro Tuner",
+                search_placeholder: "Search brand or model (e.g. Stratocaster, Les Paul)...",
+                specs_heading: "Selected Specifications",
+                select_prompt: "Choose a guitar above to load factory specifications.",
+                fav_heading: "Your Favorite Guitars",
+                fav_empty: "No favorites added yet. Click the heart icon on any guitar.",
+                tuning_label: "Tuning:",
+                hz_label: "Reference (Hz):",
+                tuner_ready: "Click start to activate tuner",
+                start_tuner: "Start Mic Tuner",
+                stop_tuner: "Stop Tuner",
+                col_prop: "Property",
+                col_spec: "Factory Spec / Ideal Value",
+                scale: "Scale Length",
+                radius: "Fretboard Radius",
+                relief: "Neck Relief",
+                action: "Action (12th Fret)",
+                pickup: "Pickup Height"
+            }
+        };
+
+        function switchTab(index) {
+            const panels = document.querySelectorAll('.panel');
+            const buttons = document.querySelectorAll('.tab-btn');
+            panels.forEach((p, i) => p.classList.toggle('active', i === index));
+            buttons.forEach((b, i) => b.classList.toggle('active', i === index));
+            if (index === 1) renderFavorites();
+            if (index === 2) renderGuide();
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', currentTheme);
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) el.innerText = translations[currentLang][key];
+            });
+            document.getElementById('search-input').placeholder = translations[currentLang].search_placeholder;
+            renderGuitars(guitars);
+            if (selectedGuitar) selectGuitar(selectedGuitar.id);
+            renderGuide();
+        }
+
+        function renderGuitars(list) {
+            const container = document.getElementById('guitar-list');
+            container.innerHTML = '';
+            list.forEach(g => {
+                const isFav = favorites.includes(g.id);
+                const card = document.createElement('div');
+                card.className = `guitar-card ${selectedGuitar && selectedGuitar.id === g.id ? 'selected' : ''}`;
+                card.innerHTML = `
+                    <div onclick="selectGuitar(${g.id})" style="flex-grow: 1;">
+                        <strong>${g.brand}</strong><br><span style="font-size:0.9rem; color:var(--text-muted);">${g.model}</span>
+                    </div>
+                    <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, ${g.id})">♥</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterGuitars() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = guitars.filter(g => g.brand.toLowerCase().includes(query) || g.model.toLowerCase().includes(query));
+            renderGuitars(filtered);
+        }
+
+        function toggleFav(event, id) {
+            event.stopPropagation();
+            if (favorites.includes(id)) {
+                favorites = favorites.filter(f => f !== id);
+            } else {
+                favorites.push(id);
+            }
+            localStorage.setItem('guitar_favs', JSON.stringify(favorites));
+            renderGuitars(guitars);
+        }
+
+        function renderFavorites() {
+            const container = document.getElementById('fav-list');
+            container.innerHTML = '';
+            const favGuitars = guitars.filter(g => favorites.includes(g.id));
+            if (favGuitars.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-muted);">${translations[currentLang].fav_empty}</p>`;
+                return;
+            }
+            favGuitars.forEach(g => {
+                const card = document.createElement('div');
+                card.className = 'guitar-card';
+                card.innerHTML = `
+                    <div onclick="switchTab(0); selectGuitar(${g.id});" style="flex-grow: 1; cursor:pointer;">
+                        <strong>${g.brand}</strong><br><span style="font-size:0.9rem; color:var(--text-muted);">${g.model}</span>
+                    </div>
+                    <button class="fav-btn active" onclick="toggleFav(event, ${g.id}); renderFavorites();">♥</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function selectGuitar(id) {
+            selectedGuitar = guitars.find(g => g.id === id);
+            renderGuitars(guitars);
+            const t = translations[currentLang];
+            const tbody = document.getElementById('specs-body');
+            document.getElementById('specs-heading').innerText = `${selectedGuitar.brand} ${selectedGuitar.model} - Specs`;
+            tbody.innerHTML = `
+                <tr><td><strong>${t.scale}</strong></td><td>${selectedGuitar.scale}</td></tr>
+                <tr><td><strong>${t.radius}</strong></td><td>${selectedGuitar.radius}</td></tr>
+                <tr><td><strong>${t.relief}</strong></td><td>${selectedGuitar.relief}</td></tr>
+                <tr><td><strong>${t.action}</strong></td><td>${selectedGuitar.action12th}</td></tr>
+                <tr><td><strong>${t.pickup}</strong></td><td>${selectedGuitar.pickupHeight}</td></tr>
+            `;
+        }
+
+        function renderGuide() {
+            const container = document.getElementById('step-container');
+            const specText = selectedGuitar ? ` (${selectedGuitar.brand} ${selectedGuitar.model}: Halswelving ${selectedGuitar.relief}, Actie ${selectedGuitar.action12th})` : '';
+            
+            const stepsNl = [
+                { title: "Stap 1: Stemmen (Pitch)", desc: "Stem de gitaar eerst zuiver naar de gewenste stemming voordat je metingen verricht. Spanning op de hals verandert namelijk direct de nek-afstelling." },
+                { title: "Stap 2: Neck Relief (Halswelving / Truss Rod)" + specText, desc: "Druk de snaar in bij de 1e en de laatste fret. Meet de afstand bij de 7e-9e fret. Draai de truss rod rechtsom (strakker/minder relief) als de holte te groot is, of linksom (losser) als de snaar tegen de frets aanligt." },
+                { title: "Stap 3: Action (Snaarhoogte)", desc: "Meet de afstand vanaf de bovenkant van de 12e fret tot de onderkant van de snaar. Pas de brugheugte (of Floyd Rose studs / tune-o-matic thumbwheels) aan tot je de gewenste hoogte bereikt hebt." },
+                { title: "Stap 4: Intonatie (Snaarlengte)", desc: "Speel de losse snaar en vergelijk deze met de harmonische boventoon op de 12e fret (of ingedrukt). Is de noot te hoog? Verplaats het zadel naar achteren (langer maken). Te laag? Verplaats het naar voren." },
+                { title: "Stap 5: Pickup Hoogte", desc: "Druk de dikste en dunste snaar in bij de hoogste fret. Meet de afstand tussen de onderkant van de snaar en de bovenkant van de pooltjes van het element. Te dichtbij geeft 'string pull' (magnetische vervorming); te ver weg verliest output." }
+            ];
+
+            const stepsEn = [
+                { title: "Step 1: Tuning", desc: "Always tune the guitar accurately before measuring or adjusting. String tension directly impacts neck relief." },
+                { title: "Step 2: Neck Relief (Truss Rod)" + specText, desc: "Press string at 1st and last fret. Check clearance around 7th-9th fret. Turn truss rod clockwise to reduce relief, counter-clockwise to increase." },
+                { title: "Step 3: Action (String Height)", desc: "Measure from top of 12th fret to bottom of string. Adjust bridge height saddles until target height is achieved." },
+                { title: "Step 4: Intonation (String Length)", desc: "Compare open string or 12th fret harmonic to fretted 12th fret note. If sharp, move saddle back; if flat, move saddle forward." },
+                { title: "Step 5: Pickup Height", desc: "Frets held at highest fret, measure distance between string and pole pieces. Too close causes magnetic pull; too far loses output." }
+            ];
+
+            const activeSteps = currentLang === 'nl' ? stepsNl : stepsEn;
+            container.innerHTML = '';
+            activeSteps.forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'step-item';
+                div.innerHTML = `<div class="step-title">${s.title}</div><p style="color:var(--text-muted); font-size:0.95rem; line-height:1.4;">${s.desc}</p>`;
+                container.appendChild(div);
+            });
+        }
+
+        // Web Audio Tuner Logica
+        let audioContext = null;
+        let analyser = null;
+        let microphone = null;
+        let isTunerRunning = false;
+        let refFreq = 440;
+
+        function updateReferenceFreq(val) {
+            refFreq = parseFloat(val) || 440;
+        }
+
+        async function toggleTuner() {
+            const btn = document.getElementById('tuner-toggle-btn');
+            if (!isTunerRunning) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                    microphone = audioContext.createMediaStreamSource(stream);
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 2048;
+                    microphone.connect(analyser);
+                    isTunerRunning = true;
+                    btn.innerText = translations[currentLang].stop_tuner;
+                    btn.style.background = 'var(--danger)';
+                    updatePitch();
+                } catch (err) {
+                    alert("Microfoonstoegang geweigerd of niet beschikbaar.");
+                }
+            } else {
+                if (audioContext) audioContext.close();
+                isTunerRunning = false;
+                btn.innerText = translations[currentLang].start_tuner;
+                btn.style.background = 'var(--accent)';
+                document.getElementById('tuner-note').innerText = "-";
+                document.getElementById('tuner-cents').innerText = translations[currentLang].tuner_ready;
+                document.getElementById('tuner-freq').innerText = "0.0 Hz";
+            }
+        }
+
+        function updatePitch() {
+            if (!isTunerRunning) return;
+            const bufferLength = analyser.fftSize;
+            const buffer = new Float32Array(bufferLength);
+            analyser.getFloatTimeDomainData(buffer);
+            
+            const freq = autoCorrelate(buffer, audioContext.sampleRate);
+            if (freq !== -1) {
+                document.getElementById('tuner-freq').innerText = freq.toFixed(1) + " Hz";
+                const noteInfo = getNoteFromPitch(freq);
+                document.getElementById('tuner-note').innerText = noteInfo.name;
+                const cents = noteInfo.cents;
+                const centsText = cents > 0 ? `+${cents} cents (Te hoog)` : `${cents} cents (Te laag)`;
+                document.getElementById('tuner-cents').innerText = Math.abs(cents) < 3 ? "✓ Zuiver!" : centsText;
+                document.getElementById('tuner-cents.style').color = Math.abs(cents) < 3 ? 'var(--success)' : 'var(--text-muted)';
+            }
+            requestAnimationFrame(updatePitch);
+        }
+
+        function autoCorrelate(buffer, sampleRate) {
+            let SIZE = buffer.length;
+            let sumOfSquares = 0;
+            for (let i = 0; i < SIZE; i++) {
+                let val = buffer[i];
+                sumOfSquares += val * val;
+            }
+            let rootMeanSquare = Math.sqrt(sumOfSquares / SIZE);
+            if (rootMeanSquare < 0.01) return -1;
+
+            let r1 = 0, r2 = SIZE - 1, threshold = 0.2;
+            for (let i = 0; i < SIZE / 2; i++) {
+                if (Math.abs(buffer[i]) < threshold) { r1 = i; break; }
+            }
+            for (let i = 1; i < SIZE / 2; i++) {
+                if (Math.abs(buffer[SIZE - i]) < threshold) { r2 = SIZE - i; break; }
+            }
+
+            buffer = buffer.slice(r1, r2);
+            SIZE = buffer.length;
+
+            let c = new Array(SIZE).fill(0);
+            for (let i = 0; i < SIZE; i++) {
+                for (let j = 0; j < SIZE - i; j++) {
+                    c[i] = c[i] + buffer[j] * buffer[j + i];
+                }
+            }
+
+            let d = 0;
+            while (c[d] > c[d + 1]) d++;
+            let maxval = -1, maxpos = -1;
+            for (let i = d; i < SIZE; i++) {
+                if (c[i] > maxval) {
+                    maxval = c[i];
+                    maxpos = i;
+                }
+            }
+            let T0 = maxpos;
+            return sampleRate / T0;
+        }
+
+        function getNoteFromPitch(frequency) {
+            const noteNum = 12 * (Math.log(frequency / refFreq) / Math.log(2));
+            const roundedNote = Math.round(noteNum) + 69;
+            const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+            const name = noteNames[roundedNote % 12];
+            const exactFreq = refFreq * Math.pow(2, (roundedNote - 69) / 12);
+            const cents = Math.floor(1200 * Math.log2(frequency / exactFreq));
+            return { name, cents };
+        }
+
+        function changeTuning() {
+            // Placeholder voor extra stemmingen logica indien gewenst
+        }
+
+        // Initialisatie
+        renderGuitars(guitars);
+        renderGuide();
+    </script>
+</body>
+</html>
